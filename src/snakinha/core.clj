@@ -55,6 +55,11 @@
         body (into [] (butlast snake))]
     (conj body (assoc head :head true))))
 
+(defn colide?
+  [snake
+   {:keys [x y]}]
+  (boolean (some (fn [p] (= p {:x x :y y})) snake)))
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
@@ -73,6 +78,5 @@
     (println (render-board (draw-snake @snake board)))
     (swap! snake (partial move-snake "right"))
     (println "--------------------------")
-    (println (render-board (draw-snake @snake board)))
-    ;;(draw-snake @snake board) 
+    (println (render-board (draw-snake @snake board))) 
     ))
