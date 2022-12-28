@@ -8,9 +8,9 @@
   (print (str (char 27) "[2J"))
   (print (str (char 27) "[;H")))
 
-(defn colide?
-  [snake
-   {:keys [x y]}]
+(defn colide? ;; TODO descontar se for o ultimo tail
+  [snake      ;;      pq na real o ultimo tail vai
+   {:keys [x y]}] ;;  ser deslocado
   (boolean (some (fn [p] (and (= (:x p) x) (= (:y p) y))) snake)))
 
 (defn make-board
@@ -50,26 +50,33 @@
   ([snake board] (draw-snake snake board "s"))
   ([snake board snake-sprite]
    (reduce
-    (fn [board snake-point] ;; TODO fazer um destructuring aqui
+    (fn [board {:keys [x y] :as snake-point}]
       (update-in board
-                 [(:x snake-point) (:y snake-point)]
+                 [x y]
                  (fn [_] (if (:head snake-point)
                            "H"
                            snake-sprite))))
     board
     snake)))
 
-
+(defn reverse? 
+  [snake
+   {:keys [x y]}]
+  (let [first-body (->> snake
+                        (remove :head)
+                        last)] 
+    (and (= (:x first-body) x) (= (:y first-body) y))))
 
 (defn move-snake
   [coordinate-update-fn coordinate-update-axis snake]
   (let [head (first (filter :head snake))
-        body (into [] (map #(update % :head (fn [_] false)) (rest snake))) ;; TODO transformar em 2 passos
+        raw-body (rest snake)
+        cleaned-body (into [] (map #(update % :head (fn [_] false)) raw-body))
         new-head (assoc head coordinate-update-axis (coordinate-update-fn (coordinate-update-axis head))) ;; TODO transformas em threading last
-        colide (colide? snake new-head)]
-    (if (or (= (coordinate-update-axis new-head) 0) colide)
+        reverse (reverse? snake new-head)]
+    (if (or (= (coordinate-update-axis new-head) 0) reverse)
       snake
-      (conj body new-head))))
+      (conj cleaned-body new-head))))
 
 (defn move-snake-to ;TODO transformar as directions em keywords e checar se existe um enum em clojure
   [direction snake]
