@@ -8,6 +8,11 @@
   (print (str (char 27) "[2J"))
   (print (str (char 27) "[;H")))
 
+(defn colide?
+  [snake
+   {:keys [x y]}]
+  (boolean (some (fn [p] (and (= (:x p) x) (= (:y p) y))) snake)))
+
 (defn make-board
   [x y background]
   (->> background
@@ -16,11 +21,30 @@
        (repeat y)
        (into [])))
 
-(defn bear-fruit ;; TODO mudar pro mesmo esquema da snake (lista de coordenadas) 
-  ([x y board]    ;; e não fazer direto no board, fica mais facil checar
-   (bear-fruit x y board "f"))
-  ([x y board fruit]
-   (update-in board [x y] (fn [_] fruit))))
+(defn bear-fruit
+  [x y board snake]
+  (let [board-x-len (count board)
+        board-y-len (count (get board 0))
+        new-fruit {:x x :y y}]
+    (when (or (> x board-x-len) (> y board-y-len))
+      (throw (Exception. "fruit out of bounds")))
+    (when (colide? snake new-fruit)
+      (throw (Exception. "fruit cant bear over snake")))
+    new-fruit))
+
+(defn bear-randon-fruit
+  [board snake]
+  (let [board-x-len (count board)
+        board-y-len (count (get board 0))
+        randon-x (rand-int board-x-len)
+        randon-y (rand-int board-y-len)]
+    (bear-fruit randon-x randon-y board snake)))
+
+(defn draw-fruit
+  [board 
+   {:keys [x y]} ;as fruit
+   fruit-sprite]
+  (update-in board [x y] (fn [_] fruit-sprite)))
 
 (defn draw-snake
   ([snake board] (draw-snake snake board "s"))
@@ -35,10 +59,7 @@
     board
     snake)))
 
-(defn colide?
-  [snake
-   {:keys [x y]}]
-  (boolean (some (fn [p] (and (= (:x p) x) (= (:y p) y))) snake)))
+
 
 (defn move-snake
   [coordinate-update-fn coordinate-update-axis snake]
@@ -74,32 +95,32 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (let [board (make-board 6 6 "x")
-        fruited-board (bear-fruit 1 1 board)
-        snake (atom (raise-snake 4))]
+  (let [board (make-board 6 6 "x") 
+        snake (atom (raise-snake 4))
+        fruit (bear-randon-fruit board @snake)]
     (println "---------start------------")
-    (println (render-board (draw-snake @snake board)))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))
     (swap! snake (partial move-snake-to "down"))
     (println "---------down-------------")
-    (println (render-board (draw-snake @snake board)))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))
     (swap! snake (partial move-snake-to "down"))
     (println "---------down-------------")
-    (println (render-board (draw-snake @snake board)))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))
     (swap! snake (partial move-snake-to "down"))
     (println "---------down-------------")
-    (println (render-board (draw-snake @snake board)))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))
     (swap! snake (partial move-snake-to "up"))
     (println "---------up--colide---------")
-    (println (render-board (draw-snake @snake board)))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))
     (swap! snake (partial move-snake-to "right"))
     (println "---------right---------------")
-    (println (render-board (draw-snake @snake board)))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))
     (swap! snake (partial move-snake-to "up"))
     (println "---------up---------------")
-    (println (render-board (draw-snake @snake board)))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))
     (swap! snake (partial move-snake-to "down"))
     (println "---------down--colide---------------")
-    (println (render-board (draw-snake @snake board)))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))
     (swap! snake (partial move-snake-to "left"))
     (println "---------left---------------")
-    (println (render-board (draw-snake @snake board)))))
+    (println (render-board (draw-fruit (draw-snake @snake board) fruit "f")))))
