@@ -26,7 +26,7 @@
                         last)]
     (and (= (:x first-body) x) (= (:y first-body) y))))
 
-(defn move-snake
+(defn- move-snake
   [coordinate-update-fn coordinate-update-axis snake]
   (let [head (first (filter :head snake))
         raw-body (rest snake)
