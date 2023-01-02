@@ -20,10 +20,13 @@
                                  {:x 0, :y 4, :head false}
                                  {:x 1, :y 4, :head true}]
             :raise->right->down->left [{:x 0, :y 3, :head false}
-                                      {:x 0, :y 4, :head false}
-                                      {:x 1, :y 4, :head false}
-                                      {:x 1, :y 3, :head true}]})
+                                       {:x 0, :y 4, :head false}
+                                       {:x 1, :y 4, :head false}
+                                       {:x 1, :y 3, :head true}]})
 
+(def draw-snake-test-table {:input-board [["x" "x" "x"] ["x" "x" "x"] ["x" "x" "x"]]
+                            :snake [{:x 0, :y 0} {:x 0, :y 1, :head true}]
+                            :expected-board [["s" "H" "x"] ["x" "x" "x"] ["x" "x" "x"]]})
 
 
 (deftest raise-snake-test
@@ -56,3 +59,9 @@
   (testing "should return false for a non colide movement"
     (is (false? (snake/colide? (:with-size-4 snake) {:x 0 :y 4})))))
 
+(deftest draw-snake-test
+  (testing "should draw a board correctly"
+    (is (= (:expected-board draw-snake-test-table) 
+           (snake/draw-snake 
+            (:snake draw-snake-test-table) 
+            (:input-board draw-snake-test-table))))))
