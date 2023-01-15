@@ -1,6 +1,8 @@
+![image](snakinha.gif)
+
 # snakinha
 
-TODO: description
+Snakinha is a study project, the purpose here its build the logic API to famous snake game, with intents to build a separeted client project for CLI or for browser
 
 ## TODO Installation
 
